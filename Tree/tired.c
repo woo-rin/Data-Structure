@@ -1,72 +1,74 @@
 #include <stdio.h>
-#include <stdlib.h>
-typedef struct Node { //구조체 정의
-    int data; // data넣는다
-    struct Node *left;// node주소 연결
-    struct Node *right;
-    int key;
-} Node;
-Node* createNode(int key) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    if (!newNode) {
-        exit(1); // 메모리 할당실패
-    }
-    newNode->key = key;
-    newNode->left = newNode->right = NULL;
-    return newNode;
-}
-Node* insert(Node* node, int key) {
-    // 트리가 비어있거나, 잎(Leaf) 위치에 도달하면 새 노드 생성
-    if (node == NULL) {
-        return createNode(key);
-    }
+#define HEAP_SIZE 256
+#define ARRAY_SIZE 10
 
-    // 현재 노드보다 작으면 왼쪽으로, 크면 오른쪽으로 이동
-    if (key < node->key) {
-        node->left = insert(node->left, key);
-    } else if (key > node->key) {
-        node->right = insert(node->right, key);
-    }
+int heap[HEAP_SIZE];
+int heapCount = 0;
 
-    return node;
-}
-Node* search(Node* root, int key) {
-    if (root == NULL || root->key == key) {
-        return root;
-    }
-    if (key < root->key) {
-        return search(root->left, key);
-    }
-    return search(root->right, key);
-}
-void tree(Node* root) {
-    if (root != NULL) {
-        tree(root->left);
-        printf("%d ", root->key);
-        tree(root->right);
-    }
+void swap(int *a, int *b){
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
 }
 
+void push(int x){
+    heap[++heapCount] = x;
 
-int main() {
-    Node* root = NULL;
+    int child = heapCount;
+    int parent = child/2;
 
-    root = insert(root, 50);
-    insert(root, 30);
-    insert(root, 20);
-    insert(root, 40);
-    insert(root, 70);
-    insert(root, 60);
-    insert(root, 80);
+    while(child>1 && heap[child]>heap[parent]){
+        swap(&heap[child], &heap[parent]);
+        child = parent;
+        parent = child/2;
+    }
 
-    // 데이터 탐색
-    int searchKey = 60;
-    Node* found = search(root, searchKey);
+}
 
-    if (found != NULL)
-        printf("탐색 성공", found->key);
-    else
-        printf("탐색 실패", searchKey);
+int pop(){
+    int ret = heap[1];
 
+    swap(&heap[1], &heap[heapCount]);
+    heapCount = heapCount-1;
+
+    int parent = 1;
+    int child = parent*2;
+
+    if(child+1 <= heapCount){
+        child = (heap[child]>heap[child+1]) ? child : child+1;
+    }
+
+    while(child<=heapCount && heap[child]>heap[parent]){
+        swap(&heap[child], &heap[parent]);
+        parent = child;
+        child = parent*2;
+
+        if(child+1 <= heapCount){
+            child = (heap[child]>heap[child+1])? child : child+1;
+        }
+    }
+
+    return ret;
+}
+
+
+int main(){
+
+    int a[ARRAY_SIZE] = {5,6,3,7,9,8,1,2,4,10};
+    //최대 힙에 a[0]~a[9]까지 삽입.
+    printf("Push : ");
+    for(int i = 0 ; i<ARRAY_SIZE ; i++){
+        printf("%d ", a[i]);
+        push(a[i]);
+    }
+    printf("\n");
+
+
+    printf("Pop : ");
+    //최대 힙에서 차례대로 pop()한 결과.
+    for(int i = 0 ; i<ARRAY_SIZE ; i++){
+        printf("%d ", pop());
+    }
+    printf("\n");
     return 0;
 }
