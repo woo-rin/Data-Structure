@@ -37,7 +37,7 @@ element pop() {
 
 element peek() {
 	if (is_empty()) {
-		fprintf(stderr, "스택 공백 에러\n");
+		fprintf(stderr, "스택 공백 에dd러\n");
 		exit(1);
 	}
 	else {
